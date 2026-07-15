@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext.jsx'
-import { BackIcon } from '../components/Icons.jsx'
 import { submitVideoData, getVideoData } from '../api/videoData.js'
 import { getTopics } from '../api/contentStrategy.js'
 import { track, TrackingEvents } from '../lib/tracking.js'
@@ -30,6 +29,16 @@ function createEmptyRow() {
     topicTitle: ''
   }
 }
+
+const DEMO_ROWS = [
+  { playCount: '12500', completionRate: '28', likes: '420', comments: '38', saves: '26', shares: '12', newFollowers: '15', topicId: null, topicTitle: '成长｜长期主义' },
+  { playCount: '8900', completionRate: '35', likes: '310', comments: '52', saves: '41', shares: '8', newFollowers: '22', topicId: null, topicTitle: '' },
+  { playCount: '21000', completionRate: '22', likes: '680', comments: '24', saves: '18', shares: '31', newFollowers: '9', topicId: null, topicTitle: '审美｜自我养成' },
+  { playCount: '5600', completionRate: '41', likes: '180', comments: '65', saves: '55', shares: '5', newFollowers: '31', topicId: null, topicTitle: '' },
+  { playCount: '15400', completionRate: '30', likes: '510', comments: '41', saves: '33', shares: '19', newFollowers: '18', topicId: null, topicTitle: '女性力量' },
+  { playCount: '7200', completionRate: '38', likes: '245', comments: '29', saves: '22', shares: '7', newFollowers: '14', topicId: null, topicTitle: '' },
+  { playCount: '18900', completionRate: '25', likes: '595', comments: '33', saves: '27', shares: '25', newFollowers: '11', topicId: null, topicTitle: '利他｜运营复盘' }
+]
 
 function normalizeNumber(value) {
   if (value === '' || value === null || value === undefined) return ''
@@ -78,7 +87,7 @@ export default function DataInputPage() {
   const navigate = useNavigate()
   const { userId, status: authStatus, initialize } = useAuth()
 
-  const [rows, setRows] = useState([createEmptyRow()])
+  const [rows, setRows] = useState(DEMO_ROWS)
   const [errors, setErrors] = useState({})
   const [globalError, setGlobalError] = useState(null)
   const [submitting, setSubmitting] = useState(false)
@@ -210,14 +219,7 @@ export default function DataInputPage() {
 
   return (
     <div className="page" style={{ minHeight: '100vh', paddingBottom: 40 }}>
-      <div className="top-nav">
-        <button className="top-nav__back" onClick={() => navigate('/home')}>
-          <BackIcon size={20} />
-          <span>数据复盘</span>
-        </button>
-      </div>
-
-      <div className="container" style={{ paddingTop: 80 }}>
+      <div className="container" style={{ paddingTop: 80, maxWidth: 848 }}>
         <div style={{ marginBottom: 20 }}>
           <h1 style={{ fontSize: 22, fontWeight: 700, margin: '0 0 8px' }}>视频数据录入</h1>
           <p style={{ margin: 0, fontSize: 14, color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
@@ -239,8 +241,8 @@ export default function DataInputPage() {
           </div>
         )}
 
-        <div className="glass-card" style={{ padding: 16, marginBottom: 16, overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 720 }}>
+        <div className="glass-card" style={{ width: 800, maxWidth: '100%', padding: '16px 0', margin: '0 auto 16px', overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 800 }}>
             <thead>
               <tr>
                 <th style={{ textAlign: 'left', padding: '8px 6px', fontSize: 13, fontWeight: 600, color: 'var(--color-text-secondary)', whiteSpace: 'nowrap' }}>序号</th>
@@ -265,7 +267,7 @@ export default function DataInputPage() {
                         type="text"
                         inputMode="numeric"
                         className="form-input"
-                        style={{ minWidth: 80, fontSize: 13, padding: '8px 10px' }}
+                        style={{ minWidth: 56, fontSize: 13, padding: '8px 4px', textAlign: 'center' }}
                         value={row[metric.key]}
                         onChange={(e) => handleChange(index, metric.key, e.target.value)}
                         placeholder={metric.placeholder}
@@ -314,6 +316,50 @@ export default function DataInputPage() {
             + 添加视频（最多 {MAX_ROWS} 条）
           </button>
         )}
+
+        {/* 上传数据截图：v1.5 开发，当前锁定 */}
+        <div
+          className="glass-card"
+          style={{
+            padding: 20,
+            marginBottom: 16,
+            background: 'rgba(255,255,255,0.3)',
+            border: '1px dashed rgba(44,44,44,0.2)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
+            position: 'relative',
+            opacity: 0.75,
+            pointerEvents: 'none'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--color-text-secondary)' }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+            <span style={{ fontSize: 14, fontWeight: 500 }}>上传数据截图</span>
+          </div>
+          <p style={{ margin: 0, fontSize: 12, color: 'var(--color-text-tertiary)' }}>AI 自动识别并填入表格</p>
+          <span
+            style={{
+              position: 'absolute',
+              top: 12,
+              right: 12,
+              fontSize: 11,
+              fontWeight: 600,
+              color: '#92400e',
+              background: 'rgba(234,179,8,0.15)',
+              padding: '3px 10px',
+              borderRadius: 999
+            }}
+          >
+            v1.5 开发
+          </span>
+        </div>
 
         {isInsufficient && (
           <div

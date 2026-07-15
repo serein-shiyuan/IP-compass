@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext.jsx'
-import { BackIcon } from '../components/Icons.jsx'
 import { getIpPlan } from '../lib/ipPlanStore.js'
 import { addTopic, getColumns } from '../api/contentStrategy.js'
 import {
@@ -161,13 +160,6 @@ export default function OptimizationPage() {
 
   return (
     <div className="page" style={{ minHeight: '100vh', paddingBottom: 40 }}>
-      <div className="top-nav">
-        <button className="top-nav__back" onClick={() => navigate('/data/dashboard')}>
-          <BackIcon size={20} />
-          <span>优化建议</span>
-        </button>
-      </div>
-
       <div className="container" style={{ paddingTop: 80 }}>
         <div style={{ marginBottom: 20 }}>
           <h1 style={{ fontSize: 22, fontWeight: 700, margin: '0 0 8px' }}>下一条优化建议</h1>

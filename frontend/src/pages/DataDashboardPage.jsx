@@ -190,6 +190,84 @@ function ComparisonChart({ data, metricKey }) {
   )
 }
 
+function RadarChart({ values, labels }) {
+  const width = 200
+  const height = 200
+  const cx = 100
+  const cy = 100
+  const maxR = 80
+  const angles = [-Math.PI / 2, -Math.PI / 10, (3 * Math.PI) / 10, (7 * Math.PI) / 10, (11 * Math.PI) / 10]
+
+  const pointFor = (value, index) => {
+    const r = (value / 100) * maxR
+    return {
+      x: cx + r * Math.cos(angles[index]),
+      y: cy + r * Math.sin(angles[index])
+    }
+  }
+
+  const rings = [20, 40, 60, 80, 100]
+  const dataPoints = values.map((v, i) => pointFor(v, i))
+
+  return (
+    <svg viewBox={`0 0 ${width} ${height}`} style={{ width: '100%', height: 'auto', maxWidth: 240 }}>
+      {rings.map((pct) => {
+        const pts = angles.map((_, i) => pointFor(pct, i))
+        return (
+          <polygon
+            key={pct}
+            points={pts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')}
+            fill="none"
+            stroke="rgba(44,44,44,0.06)"
+            strokeWidth={1}
+          />
+        )
+      })}
+      {angles.map((_, i) => {
+        const end = pointFor(100, i)
+        return (
+          <line
+            key={i}
+            x1={cx}
+            y1={cy}
+            x2={end.x}
+            y2={end.y}
+            stroke="rgba(44,44,44,0.08)"
+            strokeWidth={1}
+          />
+        )
+      })}
+      <polygon
+        points={dataPoints.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')}
+        fill="rgba(139,92,246,0.15)"
+        stroke="#8b5cf6"
+        strokeWidth={2}
+        strokeLinejoin="round"
+      />
+      {dataPoints.map((p, i) => (
+        <circle key={i} cx={p.x.toFixed(1)} cy={p.y.toFixed(1)} r={3} fill="#8b5cf6" />
+      ))}
+      {labels.map((label, i) => {
+        const pos = pointFor(96, i)
+        const dy = i === 0 ? -2 : i === 2 ? 4 : 0
+        return (
+          <text
+            key={i}
+            x={pos.x}
+            y={pos.y + dy}
+            fontSize={9}
+            fill="rgba(44,44,44,0.5)"
+            textAnchor="middle"
+            fontWeight={500}
+          >
+            {label} {values[i]}
+          </text>
+        )
+      })}
+    </svg>
+  )
+}
+
 function ChartFallback({ trendData, comparisonData, metricKey }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -412,6 +490,46 @@ export default function DataDashboardPage() {
                   <h3 style={{ margin: '0 0 12px', fontSize: 15, fontWeight: 600 }}>{activeCharts.comparisonChart.label}栏目对比</h3>
                   <div onError={() => setChartError(true)}>
                     <ComparisonChart data={activeCharts.comparisonChart} metricKey={activeMetric} />
+                  </div>
+                </div>
+
+                <div className="glass-card" style={{ padding: 16, marginBottom: 16 }}>
+                  <h3 style={{ margin: '0 0 16px', fontSize: 15, fontWeight: 600 }}>用户画像诊断</h3>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
+                    <div>
+                      <h4 style={{ margin: '0 0 10px', fontSize: 14, fontWeight: 600 }}>你的内容正在吸引谁</h4>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
+                        {positioningCard?.tags?.length > 0 ? (
+                          positioningCard.tags.map((tag) => (
+                            <span key={tag} className="tag-purple" style={{ fontSize: 12 }}>{tag}</span>
+                          ))
+                        ) : (
+                          <span style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>暂无定位标签</span>
+                        )}
+                      </div>
+                      <RadarChart values={[75, 45, 82, 60, 35]} labels={['年龄', '地域', '兴趣', '互动', '转粉']} />
+                    </div>
+                    <div>
+                      <h4 style={{ margin: '0 0 10px', fontSize: 14, fontWeight: 600 }}>有没有偏离你的定位？</h4>
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          fontSize: 12,
+                          fontWeight: 600,
+                          color: '#d4920a',
+                          background: 'rgba(234,179,8,0.12)',
+                          padding: '4px 12px',
+                          borderRadius: 999
+                        }}
+                      >
+                        轻微偏移
+                      </span>
+                      <ul style={{ listStyle: 'none', padding: 0, margin: '12px 0 0' }}>
+                        <li style={{ fontSize: 13, color: 'var(--color-text-secondary)', marginBottom: 8, lineHeight: 1.5 }}>年龄段与目标人群基本吻合</li>
+                        <li style={{ fontSize: 13, color: 'var(--color-text-secondary)', marginBottom: 8, lineHeight: 1.5 }}>一线城市占比偏高，地域略有偏移</li>
+                        <li style={{ fontSize: 13, color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>转粉率偏低，需强化关注动机</li>
+                      </ul>
+                    </div>
                   </div>
                 </div>
               </>

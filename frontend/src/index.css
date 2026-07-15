@@ -57,7 +57,7 @@ a {
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
-  background: rgba(248, 249, 250, 0.55) !important;
+  background: transparent !important;
 }
 
 .container {

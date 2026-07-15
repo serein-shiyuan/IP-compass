@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>玻璃水雾水珠特效演示</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: #2c2c2c;
+      overflow-x: hidden;
+    }
+
+    /* 玻璃特效容器：fixed 全屏，pointer-events: none 不遮挡交互 */
+    #glass-rain-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    /* 1. 底层背景图 */
+    #glass-bg {
+      position: absolute;
+      inset: 0;
+      background-image: url('/bg-glass-butterfly.png');
+      background-position: center center;
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+
+    /* 2. 磨砂雾化玻璃蒙版：半透明，确保底层背景图若隐若现 */
+    #glass-fog {
+      position: absolute;
+      inset: 0;
+      backdrop-filter: blur(12px) saturate(108%);
+      -webkit-backdrop-filter: blur(12px) saturate(108%);
+      background: rgba(248, 249, 250, 0.07);
+      box-shadow: inset 0 0 120px rgba(255, 255, 255, 0.18);
+    }
+
+    /* 3. 动态水珠 Canvas */
+    #glass-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* 示例页面内容 */
+    .demo-content {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 24px;
+      text-align: center;
+    }
+
+    .demo-card {
+      max-width: 420px;
+      width: 100%;
+      padding: 36px 28px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.55);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    p {
+      font-size: 14px;
+      line-height: 1.7;
+      color: rgba(44, 44, 44, 0.7);
+      margin-bottom: 24px;
+    }
+
+    .demo-input {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(44, 44, 44, 0.12);
+      background: rgba(255, 255, 255, 0.7);
+      font-size: 14px;
+      margin-bottom: 12px;
+      outline: none;
+    }
+
+    .demo-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 999px;
+      border: none;
+      background: #2c2c2c;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .demo-btn:hover { transform: translateY(-2px); }
+
+    .hint {
+      margin-top: 18px;
+      font-size: 12px;
+      color: rgba(44, 44, 44, 0.5);
+    }
+  </style>
+</head>
+<body>
+  <!-- 玻璃水雾特效层 -->
+  <div id="glass-rain-layer">
+    <div id="glass-bg"></div>
+    <div id="glass-fog"></div>
+    <canvas id="glass-canvas"></canvas>
+  </div>
+
+  <!-- 页面内容层 -->
+  <main class="demo-content">
+    <div class="demo-card">
+      <h1>玻璃水雾交互特效</h1>
+      <p>移动鼠标划过玻璃，白雾会被擦除，水珠会向四周散开。相邻水珠会融合变大，达到一定重量后滑落。空白区域 3 秒后重新起雾。</p>
+      <input class="demo-input" type="text" placeholder="输入框可正常交互，特效不遮挡" />
+      <button class="demo-btn">按钮可点击</button>
+      <div class="hint">这是一个可直接复制到 React/Vue/纯 HTML 页面使用的独立特效层。</div>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      const canvas = document.getElementById('glass-canvas')
+      const ctx = canvas.getContext('2d', { alpha: true })
+
+      // 配置参数
+      const CONFIG = {
+        fogOpacity: 0.78,
+        dropCount: 90,
+        wipeRadius: 90,
+        recoveryDelay: 3000,
+        slideThreshold: 22
+      }
+
+      let width = 0
+      let height = 0
+      let dpr = Math.min(window.devicePixelRatio || 1, 2)
+      const mouse = { x: -1000, y: -1000, active: false }
+
+      function resize() {
+        dpr = Math.min(window.devicePixelRatio || 1, 2)
+        width = window.innerWidth
+        height = window.innerHeight
+        canvas.width = Math.floor(width * dpr)
+        canvas.height = Math.floor(height * dpr)
+        canvas.style.width = width + 'px'
+        canvas.style.height = height + 'px'
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      }
+
+      window.addEventListener('resize', resize, { passive: true })
+      window.addEventListener('mousemove', (e) => {
+        mouse.x = e.clientX
+        mouse.y = e.clientY
+        mouse.active = true
+      }, { passive: true })
+      window.addEventListener('mouseleave', () => {
+        mouse.active = false
+        mouse.x = -1000
+        mouse.y = -1000
+      }, { passive: true })
+      window.addEventListener('touchmove', (e) => {
+        if (e.touches && e.touches[0]) {
+          mouse.x = e.touches[0].clientX
+          mouse.y = e.touches[0].clientY
+          mouse.active = true
+        }
+      }, { passive: true })
+
+      resize()
+
+      // ---------------- 雾气层 ----------------
+      const fogCount = Math.min(160, Math.floor((width * height) / 12000))
+      const fogs = []
+      for (let i = 0; i < fogCount; i++) {
+        fogs.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          r: 60 + Math.random() * 120,
+          baseA: 0.18 + Math.random() * 0.22,
+          a: 0.18 + Math.random() * 0.22,
+          wipedAt: -Infinity,
+          phase: Math.random() * Math.PI * 2
+        })
+      }
+
+      // ---------------- 水珠层 ----------------
+      class Drop {
+        constructor(initial) {
+          this.reset(initial)
+        }
+
+        reset(initial) {
+          this.r = 2 + Math.random() * 4.5
+          this.x = Math.random() * width
+          this.y = initial ? Math.random() * height : -this.r - Math.random() * 80
+          this.baseX = this.x
+          this.baseY = this.y
+          this.vx = 0
+          this.vy = 0
+          this.mass = this.r * this.r
+          this.sliding = false
+          this.trail = []
+          this.maxTrailLength = 6
+          this.spawnDelay = initial ? 0 : Math.random() * 2000
+          this.spawnedAt = performance.now()
+        }
+
+        update(dt, now) {
+          if (now - this.spawnedAt < this.spawnDelay) return
+
+          const dx = this.x - mouse.x
+          const dy = this.y - mouse.y
+          const dist = Math.hypot(dx, dy)
+          const repelR = CONFIG.wipeRadius + this.r
+          const isMouseNear = dist < repelR && dist > 0.1
+
+          if (isMouseNear) {
+            const force = (1 - dist / repelR) * 1400 * dt
+            this.vx += (dx / dist) * force
+            this.vy += (dy / dist) * force
+          }
+
+          if (this.mass > CONFIG.slideThreshold && !this.sliding) {
+            this.sliding = true
+          }
+
+          if (this.sliding) {
+            const gravity = 30 + this.mass * 1.5
+            this.vy += gravity * dt
+            this.vx *= 0.96
+            this.trail.push({ x: this.x, y: this.y })
+            if (this.trail.length > this.maxTrailLength) this.trail.shift()
+          } else if (isMouseNear) {
+            this.vx *= 0.82
+            this.vy *= 0.82
+          } else {
+            this.vx = 0
+            this.vy = 0
+            this.baseX = this.x
+            this.baseY = this.y
+          }
+
+          this.x += this.vx * dt
+          this.y += this.vy * dt
+
+          if (this.y > height + this.r + 20) this.reset(false)
+          if (this.x < -this.r) this.x = width + this.r
+          if (this.x > width + this.r) this.x = -this.r
+        }
+
+        drawLens(ctx) {
+          if (performance.now() - this.spawnedAt < this.spawnDelay) return
+
+          const r = this.r
+
+          // 用 destination-out 擦除 Canvas 上的雾气，露出底层背景，模拟水滴的透明折射
+          ctx.save()
+          ctx.globalCompositeOperation = 'destination-out'
+
+          const clearGrad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, r)
+          const centerA = Math.min(0.95, 0.78 + this.mass * 0.0015)
+          const midA = Math.min(0.75, 0.42 + this.mass * 0.0008)
+          clearGrad.addColorStop(0, `rgba(255,255,255,${centerA})`)
+          clearGrad.addColorStop(0.65, `rgba(255,255,255,${midA})`)
+          clearGrad.addColorStop(1, 'rgba(255,255,255,0)')
+
+          ctx.beginPath()
+          ctx.arc(this.x, this.y, r, 0, Math.PI * 2)
+          ctx.fillStyle = clearGrad
+          ctx.fill()
+          ctx.restore()
+        }
+
+        drawBody(ctx) {
+          if (performance.now() - this.spawnedAt < this.spawnDelay) return
+
+          const r = this.r
+
+          if (this.sliding && this.trail.length > 1) {
+            ctx.save()
+            ctx.beginPath()
+            ctx.moveTo(this.trail[0].x, this.trail[0].y)
+            for (let i = 1; i < this.trail.length; i++) {
+              ctx.lineTo(this.trail[i].x, this.trail[i].y)
+            }
+            ctx.lineCap = 'round'
+            ctx.lineWidth = Math.max(1, r * 0.35)
+            ctx.strokeStyle = 'rgba(255,255,255,0.24)'
+            ctx.stroke()
+            ctx.restore()
+          }
+
+          // 极细水膜边缘
+          ctx.beginPath()
+          ctx.arc(this.x, this.y, r, 0, Math.PI * 2)
+          ctx.lineWidth = Math.max(0.35, r * 0.055)
+          ctx.strokeStyle = 'rgba(255,255,255,0.34)'
+          ctx.stroke()
+
+          // 主高光
+          ctx.beginPath()
+          ctx.arc(this.x - r * 0.35, this.y - r * 0.35, Math.max(0.8, r * 0.22), 0, Math.PI * 2)
+          ctx.fillStyle = 'rgba(255,255,255,0.92)'
+          ctx.fill()
+
+          // 次高光
+          ctx.beginPath()
+          ctx.arc(this.x + r * 0.28, this.y + r * 0.32, Math.max(0.5, r * 0.11), 0, Math.PI * 2)
+          ctx.fillStyle = 'rgba(255,255,255,0.48)'
+          ctx.fill()
+
+          // 底部淡蓝折射阴影，增加通透感
+          ctx.beginPath()
+          ctx.arc(this.x + r * 0.18, this.y + r * 0.22, Math.max(0.5, r * 0.13), 0, Math.PI * 2)
+          ctx.fillStyle = 'rgba(170,200,225,0.18)'
+          ctx.fill()
+        }
+      }
+
+      const drops = []
+      for (let i = 0; i < CONFIG.dropCount; i++) drops.push(new Drop(true))
+
+      function mergeDrops() {
+        for (let i = 0; i < drops.length; i++) {
+          const a = drops[i]
+          if (!a || a.mass <= 0) continue
+          for (let j = i + 1; j < drops.length; j++) {
+            const b = drops[j]
+            if (!b || b.mass <= 0) continue
+            const dx = a.x - b.x
+            const dy = a.y - b.y
+            const dist = Math.hypot(dx, dy)
+            if (dist < a.r + b.r && dist > 0.1) {
+              const newMass = a.mass + b.mass
+              a.vx = (a.vx * a.mass + b.vx * b.mass) / newMass
+              a.vy = (a.vy * a.mass + b.vy * b.mass) / newMass
+              a.mass = newMass
+              a.r = Math.sqrt(newMass)
+              a.x = (a.x * a.mass + b.x * b.mass) / (a.mass + b.mass)
+              a.y = (a.y * a.mass + b.y * b.mass) / (a.mass + b.mass)
+              a.baseX = a.x
+              a.baseY = a.y
+              b.reset(false)
+              break
+            }
+          }
+        }
+      }
+
+      function updateFog(now) {
+        const wipeR2 = CONFIG.wipeRadius * CONFIG.wipeRadius
+        fogs.forEach((f) => {
+          const dx = f.x - mouse.x
+          const dy = f.y - mouse.y
+          if (dx * dx + dy * dy < wipeR2) {
+            f.wipedAt = now
+            f.a = Math.max(0, f.a - 0.18)
+          }
+          const elapsed = now - f.wipedAt
+          if (elapsed > CONFIG.recoveryDelay) {
+            const breathe = Math.sin(now * 0.001 + f.phase) * 0.03
+            const target = Math.max(0, f.baseA + breathe)
+            f.a += (target - f.a) * 0.015
+          }
+        })
+      }
+
+      function maybeSpawnFromWipe(now) {
+        if (!mouse.active || Math.random() >= 0.08) return
+        const angle = Math.random() * Math.PI * 2
+        const dist = Math.random() * CONFIG.wipeRadius
+        const sx = mouse.x + Math.cos(angle) * dist
+        const sy = mouse.y + Math.sin(angle) * dist
+        const dead = drops.find((d) => d.y < -20 && performance.now() - d.spawnedAt > d.spawnDelay + 500)
+        if (dead) {
+          dead.r = 1.5 + Math.random() * 2.5
+          dead.mass = dead.r * dead.r
+          dead.x = sx
+          dead.y = sy
+          dead.baseX = sx
+          dead.baseY = sy
+          dead.vx = 0
+          dead.vy = 0
+          dead.sliding = false
+          dead.trail = []
+          dead.spawnDelay = 0
+          dead.spawnedAt = now - CONFIG.recoveryDelay - 100
+        }
+      }
+
+      let lastTime = performance.now()
+      function loop(now) {
+        const dt = Math.min((now - lastTime) / 1000, 0.033)
+        lastTime = now
+
+        ctx.clearRect(0, 0, width, height)
+
+        updateFog(now)
+        ctx.save()
+        for (const f of fogs) {
+          if (f.a <= 0.005) continue
+          ctx.beginPath()
+          ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2)
+          const grad = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r)
+          grad.addColorStop(0, `rgba(255,255,255,${f.a * CONFIG.fogOpacity})`)
+          grad.addColorStop(1, 'rgba(255,255,255,0)')
+          ctx.fillStyle = grad
+          ctx.fill()
+        }
+        ctx.restore()
+
+        for (const d of drops) d.update(dt, now)
+        mergeDrops()
+        maybeSpawnFromWipe(now)
+
+        // 先用水珠形状擦除雾气（露出底层背景），再绘制水膜边缘与高光
+        for (const d of drops) d.drawLens(ctx)
+        for (const d of drops) d.drawBody(ctx)
+
+        requestAnimationFrame(loop)
+      }
+
+      requestAnimationFrame(loop)
+    })()
+  </script>
+</body>
+</html>

@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext.jsx'
 import {
-  ButterflyIcon,
   CompassIcon,
   StrategyIcon,
   PreDiagnosisIcon,
@@ -234,11 +233,6 @@ export default function WelcomePage() {
   // 落地页（始终显示新用户页面）
   return (
     <div className="page welcome">
-      <div className="welcome__bg">
-        <div className="welcome__glow" />
-        <ButterflyIcon className="welcome__butterfly" />
-      </div>
-
       {/* Hero 区 */}
       <section className="welcome__hero">
         <div className="welcome__hero-inner">

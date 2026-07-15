@@ -3,7 +3,7 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext.jsx'
 import { trackPageView } from './lib/tracking.js'
 import GlobalNav from './components/GlobalNav.jsx'
-import FoggyGlassCanvas from './components/FoggyGlassCanvas.jsx'
+import GlassRainEffect from './components/GlassRainEffect.jsx'
 import WelcomePage from './pages/WelcomePage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import HomePage from './pages/HomePage.jsx'
@@ -51,7 +51,7 @@ function RouterContent() {
 function App() {
   return (
     <AuthProvider>
-      <FoggyGlassCanvas />
+      <GlassRainEffect bgImage="/bg-glass-butterfly.png" zIndex={0} />
       <RouterContent />
     </AuthProvider>
   )
