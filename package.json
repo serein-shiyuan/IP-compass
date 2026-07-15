@@ -8,9 +8,14 @@
     "dev:front": "npm run dev --prefix frontend",
     "dev:back": "npm run dev --prefix backend",
     "release:check": "node scripts/sanitize-check.js && npm run build --prefix frontend",
-    "sanitize": "node scripts/sanitize-check.js"
+    "sanitize": "node scripts/sanitize-check.js",
+    "deploy:worker": "wrangler deploy",
+    "deploy:pages": "wrangler pages deploy ./frontend/dist --project-name=ip-compass",
+    "deploy": "npm run release:check && npm run deploy:worker && npm run deploy:pages"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "itty-router": "^5.0.24",
+    "wrangler": "^4.111.0"
   }
 }

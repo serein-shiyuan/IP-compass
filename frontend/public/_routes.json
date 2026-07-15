@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "include": ["/api/*"],
+  "exclude": [
+    "/assets/*",
+    "/bg-glass-butterfly.png",
+    "/*.js",
+    "/*.css",
+    "/*.svg",
+    "/*.ico",
+    "/index.html"
+  ]
+}

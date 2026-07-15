@@ -1,0 +1,19 @@
+name = "ip-compass-api"
+main = "worker/index.js"
+compatibility_date = "2026-07-15"
+compatibility_flags = ["nodejs_compat"]
+
+# 自定义域名（部署后在 Cloudflare 控制台绑定）
+# routes = [{ pattern = "api.yourdomain.com", custom_domain = true }]
+
+[[kv_namespaces]]
+binding = "IP_COMPASS_KV"
+id = "your_kv_namespace_id"
+preview_id = "your_preview_kv_namespace_id"
+
+[vars]
+# 前端域名，用于 CORS（生产环境建议改为实际域名）
+ALLOWED_ORIGIN = "*"
+
+# 敏感变量通过 wrangler secret 设置，不要写在这里：
+# wrangler secret put DEEPSEEK_API_KEY

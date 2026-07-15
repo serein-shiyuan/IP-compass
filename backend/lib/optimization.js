@@ -1,29 +1,49 @@
-import { readFileSync } from 'fs'
-import { fileURLToPath } from 'url'
-import { dirname, join } from 'path'
-import { randomUUID } from 'crypto'
+const PROMPT_TEMPLATE = `你是一位资深短视频内容策略师。请根据以下输入，为用户生成 3-5 条具体的「下一条内容优化建议」。
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
+## 输入信息
 
-function loadPromptTemplate() {
-  try {
-    return readFileSync(join(__dirname, '../prompts/optimization_suggestions_v1.txt'), 'utf-8')
-  } catch (err) {
-    console.error('Failed to load optimization prompt template:', err)
-    return ''
-  }
+### 账号定位
+- 一句话定位：{oneLinePositioning}
+- 人设说明：{persona}
+- 内容承诺：{promises}
+- 定位标签：{tags}
+
+### 归因诊断结果
+{attributionSummary}
+
+### 诊断报告低分维度
+{lowDimensions}
+
+### 近期视频数据摘要
+{videoDataSummary}
+
+## 输出要求
+
+请严格按照以下 JSON 格式返回，不要包含任何 markdown 代码块标记：
+{
+  "suggestions": [
+    {
+      "id": "唯一标识字符串",
+      "direction": "内容方向一句话",
+      "titleSuggestion": "具体标题建议 5-30 字",
+      "optimizeDimension": "对应优化维度，如 选题/标题/开头钩子/互动引导/转化设计",
+      "caseReference": "可借鉴的参考案例或表达形式，1 句话"
+    }
+  ]
 }
+
+注意：
+1. 只返回 JSON，不要有任何其他说明。
+2. 建议必须具体、可执行，与账号定位强相关。
+3. id 建议使用英文+数字，不要含特殊字符。
+4. 如果归因结果为空或没有明显问题，给出基于定位的通用内容方向建议。`
 
 function safeJoin(arr, sep = '、') {
   return Array.isArray(arr) ? arr.filter((s) => typeof s === 'string' && s.trim()).join(sep) : ''
 }
 
 function buildOptimizationPrompt(attributionResult, diagnosisReport, positioningCard, videoData, ipPlanSummary = '') {
-  const template = loadPromptTemplate()
-  if (!template) {
-    throw new Error('Prompt template not found')
-  }
+  const template = PROMPT_TEMPLATE
 
   const attributionSummary = (attributionResult?.attributions || []).map((item, index) => {
     return `${index + 1}. ${item.name}：${item.dataEvidence}；${item.contentAnalysis}`
