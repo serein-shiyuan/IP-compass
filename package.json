@@ -1,0 +1,16 @@
+{
+  "name": "ipcompass",
+  "version": "0.1.0",
+  "private": true,
+  "description": "IP Compass - 个人 IP 内容诊断与陪跑系统（F000 注册登录 MVP）",
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
+    "dev:front": "npm run dev --prefix frontend",
+    "dev:back": "npm run dev --prefix backend",
+    "release:check": "node scripts/sanitize-check.js && npm run build --prefix frontend",
+    "sanitize": "node scripts/sanitize-check.js"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
