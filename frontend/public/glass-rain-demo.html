@@ -34,14 +34,14 @@
       background-attachment: fixed;
     }
 
-    /* 2. 磨砂雾化玻璃蒙版：半透明，确保底层背景图若隐若现 */
+    /* 2. 磨砂雾化玻璃蒙版：极淡，让底层背景图清晰可见 */
     #glass-fog {
       position: absolute;
       inset: 0;
-      backdrop-filter: blur(12px) saturate(108%);
-      -webkit-backdrop-filter: blur(12px) saturate(108%);
-      background: rgba(248, 249, 250, 0.07);
-      box-shadow: inset 0 0 120px rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(6px) saturate(104%);
+      -webkit-backdrop-filter: blur(6px) saturate(104%);
+      background: rgba(248, 249, 250, 0.02);
+      box-shadow: inset 0 0 80px rgba(255, 255, 255, 0.06);
     }
 
     /* 3. 动态水珠 Canvas */
@@ -100,7 +100,7 @@
 
       // 配置参数
       const CONFIG = {
-        fogOpacity: 0.78,
+        fogOpacity: 0.32,
         dropCount: 90,
         wipeRadius: 90,
         recoveryDelay: 3000,

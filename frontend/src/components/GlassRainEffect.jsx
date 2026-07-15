@@ -21,7 +21,7 @@ import React, { useEffect, useRef } from 'react'
 export default function GlassRainEffect({
   bgImage = '/bg-glass-butterfly.png',
   zIndex = 0,
-  fogOpacity = 0.78,
+  fogOpacity = 0.32,
   dropCount = 90,
   wipeRadius = 90,
   recoveryDelay = 3000
@@ -401,15 +401,15 @@ export default function GlassRainEffect({
         }}
       />
 
-      {/* 中间磨砂雾化玻璃蒙版：半透明，确保底层背景图若隐若现 */}
+      {/* 中间磨砂雾化玻璃蒙版：极淡，让底层背景图清晰可见 */}
       <div
         style={{
           position: 'absolute',
           inset: 0,
-          backdropFilter: 'blur(12px) saturate(108%)',
-          WebkitBackdropFilter: 'blur(12px) saturate(108%)',
-          background: 'rgba(248, 249, 250, 0.07)',
-          boxShadow: 'inset 0 0 120px rgba(255,255,255,0.18)'
+          backdropFilter: 'blur(6px) saturate(104%)',
+          WebkitBackdropFilter: 'blur(6px) saturate(104%)',
+          background: 'rgba(248, 249, 250, 0.02)',
+          boxShadow: 'inset 0 0 80px rgba(255,255,255,0.06)'
         }}
       />
 
