@@ -3,7 +3,8 @@
   "include": ["/api/*"],
   "exclude": [
     "/assets/*",
-    "/bg-glass-butterfly.png",
+    "/bg-glass-butterfly.webp",
+    "/*.webp",
     "/*.js",
     "/*.css",
     "/*.svg",

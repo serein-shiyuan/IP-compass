@@ -51,7 +51,7 @@ function RouterContent() {
 function App() {
   return (
     <AuthProvider>
-      <GlassRainEffect bgImage="/bg-glass-butterfly.png" zIndex={0} />
+      <GlassRainEffect bgImage="/bg-glass-butterfly.webp" zIndex={0} />
       <RouterContent />
     </AuthProvider>
   )
