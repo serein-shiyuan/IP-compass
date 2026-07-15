@@ -8,8 +8,8 @@ compatibility_flags = ["nodejs_compat"]
 
 [[kv_namespaces]]
 binding = "IP_COMPASS_KV"
-id = "your_kv_namespace_id"
-preview_id = "your_preview_kv_namespace_id"
+id = "8556f4a661d54a9897b0b413649e8996"
+preview_id = "1b9479e0a27f42048e03d1d2ff8fda30"
 
 [vars]
 # 前端域名，用于 CORS（生产环境建议改为实际域名）

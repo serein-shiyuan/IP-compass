@@ -11,6 +11,8 @@ backend/.env
 # Build outputs
 frontend/dist/
 *.log
+.wrangler/
+frontend/.wrangler/
 
 # OS files
 .DS_Store
