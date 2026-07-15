@@ -1,4 +1,3 @@
-# 显式声明：真实静态文件优先命中；其余路由 fallback 到 index.html 供 SPA 处理
+# 真实静态文件由 Pages 自动优先命中；其余路由 fallback 到 index.html 供 SPA 处理
 /assets/*  /assets/:splat  200
-/*.png      /:splat         200
 /*          /index.html     200
