@@ -1,12 +1,6 @@
 name = "ip-compass"
 compatibility_date = "2026-07-15"
-
-[build]
-command = "npm install && npm run build"
-cwd = "."
-
-[site]
-bucket = "./dist"
+pages_build_output_dir = "./dist"
 
 # 环境变量：指向 Cloudflare Worker 的 URL
 # 部署后在 Cloudflare Pages 控制台设置 API_WORKER_URL
