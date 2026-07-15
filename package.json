@@ -10,7 +10,7 @@
     "release:check": "node scripts/sanitize-check.js && npm run build --prefix frontend",
     "sanitize": "node scripts/sanitize-check.js",
     "deploy:worker": "wrangler deploy",
-    "deploy:pages": "wrangler pages deploy ./frontend/dist --project-name=ip-compass",
+    "deploy:pages": "node scripts/copy-functions-to-dist.js && wrangler pages deploy ./frontend/dist --project-name=ip-compass",
     "deploy": "npm run release:check && npm run deploy:worker && npm run deploy:pages"
   },
   "devDependencies": {
