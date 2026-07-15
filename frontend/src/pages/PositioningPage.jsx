@@ -603,7 +603,7 @@ function Stage2Step() {
 
   // 初始化开场白与第一个问题
   useEffect(() => {
-    if (messages.length > 0) return
+    if (messages.length > 0 || !stage1) return
 
     const opening = buildStage2Opening(stage1)
     async function init() {
@@ -906,14 +906,15 @@ function buildStage2Opening(stage1) {
     career_network: '职场人脉',
     general_interest: '泛兴趣用户'
   }
-  const purpose = purposeMap[stage1.q1] || stage1.q1
-  const audience = audienceMap[stage1.q3] || stage1.q3
-  const q2Arr = Array.isArray(stage1.q2) ? stage1.q2 : (stage1.q2 ? [stage1.q2] : [])
+  const purpose = purposeMap[stage1?.q1] || stage1?.q1 || '实现你的目标'
+  const audience = audienceMap[stage1?.q3] || stage1?.q3 || '你的受众'
+  const q2Arr = Array.isArray(stage1?.q2) ? stage1.q2 : (stage1?.q2 ? [stage1.q2] : [])
   const assets = q2Arr.map((v) => {
+    if (typeof v !== 'string') return ''
     if (v.startsWith('custom::')) return v.slice(8)
     const opt = STAGE1_CONFIG[1].options.find((o) => o.value === v)
     return opt ? opt.label : v
-  }).join('、')
+  }).filter(Boolean).join('、') || '有价值的素材'
   return `你好，我是你的 IP 诊断顾问。你已经告诉我：你想通过内容${purpose}，连接${audience}，拥有${assets}等素材。接下来我想深入聊几个关键问题，帮你把个人 IP 方案打磨得更精准。`
 }
 
