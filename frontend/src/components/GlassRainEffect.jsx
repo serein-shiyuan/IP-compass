@@ -19,7 +19,7 @@ import React, { useEffect, useRef } from 'react'
  * 注意：组件本身 pointer-events: none，不会遮挡页面交互。
  */
 export default function GlassRainEffect({
-  bgImage = '/bg-glass-butterfly.png',
+  bgImage = '/bg-glass-butterfly.webp',
   zIndex = 0,
   fogOpacity = 0.32,
   dropCount = 90,
