@@ -17,6 +17,7 @@ import { chatIpPlan, generateIpPlan } from '../api/ipPlan.js'
 import { confirmPositioning, updatePositioningCard } from '../api/positioning.js'
 import { BackIcon, SendIcon, CompassLogo } from '../components/Icons.jsx'
 import { track, TrackingEvents } from '../lib/tracking.js'
+import presetIpPlan from '../data/presetIpPlan.js'
 
 const STAGE1_CONFIG = [
   {
@@ -729,6 +730,31 @@ function Stage2Step() {
     }
   }
 
+  const handleUsePreset = async () => {
+    if (!userId) return
+    setGenerating(true)
+    setError(null)
+    try {
+      const planToSave = JSON.parse(JSON.stringify(presetIpPlan))
+      await saveIpPlanToDB(userId, planToSave, true)
+      localStorage.setItem('ipcompass_ip_plan', JSON.stringify(planToSave))
+      saveIpPlanSummary({ summary: planToSave.summary, tag: planToSave.positioning?.tag, oneLine: planToSave.positioning?.oneLine })
+      track(TrackingEvents.POSITIONING_CARD_GENERATED, {
+        generation_duration: 0,
+        field_count: Object.keys(planToSave.positioning || {}).length,
+        is_degraded: false,
+        skipped: true,
+        preset: true
+      })
+      clearIpPlanProgress()
+      setIpPlanCompleted(true)
+      navigate('/home')
+    } catch (err) {
+      setError(err.message || '加载预设方案失败，请重试')
+      setGenerating(false)
+    }
+  }
+
   if (!stage1) {
     return (
       <div className="page">
@@ -817,6 +843,15 @@ function Stage2Step() {
       </div>
 
       <div className="chat-footer">
+        <button
+          type="button"
+          className="btn btn-purple btn-full"
+          onClick={handleUsePreset}
+          disabled={generating || !userId}
+          style={{ height: 48, marginBottom: 12 }}
+        >
+          ✨ 使用预设方案，直接进入工作台
+        </button>
         {!isComplete && (
           <button
             type="button"
