@@ -1,3 +1,7 @@
-# 真实静态文件由 Pages 自动优先命中；其余路由 fallback 到 index.html 供 SPA 处理
-/assets/*  /assets/:splat  200
-/*          /index.html     200
+# 静态资源直接命中（避免被 SPA fallback 误吞）
+/assets/*   /assets/:splat   200
+/:file.png  /:file.png       200
+/:file.html /:file.html      200
+
+# SPA fallback：其余路由返回 index.html
+/*          /index.html      200
