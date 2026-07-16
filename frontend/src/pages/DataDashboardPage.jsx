@@ -107,10 +107,10 @@ function TrendChart({ data, metricKey }) {
       <line x1={padding.left} y1={padding.top} x2={padding.left} y2={height - padding.bottom} stroke="rgba(0,0,0,0.15)" strokeWidth={1} />
       <line x1={padding.left} y1={height - padding.bottom} x2={width - padding.right} y2={height - padding.bottom} stroke="rgba(0,0,0,0.15)" strokeWidth={1} />
       {/* Y轴刻度 */}
-      <text x={padding.left - 6} y={padding.top + 4} textAnchor="end" fontSize={9} fill="var(--color-text-tertiary)">
+      <text x={padding.left - 8} y={padding.top + 4} textAnchor="end" fontSize={10} fill="var(--color-text-tertiary)">
         {formatMetricValue(maxValue, metricKey)}
       </text>
-      <text x={padding.left - 6} y={height - padding.bottom} textAnchor="end" fontSize={9} fill="var(--color-text-tertiary)">
+      <text x={padding.left - 8} y={height - padding.bottom} textAnchor="end" fontSize={10} fill="var(--color-text-tertiary)">
         {formatMetricValue(minValue, metricKey)}
       </text>
       {/* 折线 */}
@@ -123,8 +123,8 @@ function TrendChart({ data, metricKey }) {
         if (y === null) return null
         return (
           <g key={i}>
-            <circle cx={xForIndex(i)} cy={y} r={3} fill="#8b5cf6" stroke="#fff" strokeWidth={1.5} />
-            <text x={xForIndex(i)} y={y - 8} textAnchor="middle" fontSize={8} fill="var(--color-text-secondary)">
+            <circle cx={xForIndex(i)} cy={y} r={4} fill="#8b5cf6" stroke="#fff" strokeWidth={2} />
+            <text x={xForIndex(i)} y={y - 10} textAnchor="middle" fontSize={10} fill="var(--color-text-secondary)">
               {formatMetricValue(point.value, metricKey)}
             </text>
           </g>
@@ -132,7 +132,7 @@ function TrendChart({ data, metricKey }) {
       })}
       {/* X轴标签 */}
       {data.dataPoints.map((point, i) => (
-        <text key={i} x={xForIndex(i)} y={height - padding.bottom + 14} textAnchor="middle" fontSize={8} fill="var(--color-text-tertiary)">
+        <text key={i} x={xForIndex(i)} y={height - padding.bottom + 16} textAnchor="middle" fontSize={10} fill="var(--color-text-tertiary)">
           {point.label}
         </text>
       ))}
@@ -163,10 +163,10 @@ function ComparisonChart({ data, metricKey }) {
       <line x1={padding.left} y1={padding.top} x2={padding.left} y2={height - padding.bottom} stroke="rgba(0,0,0,0.15)" strokeWidth={1} />
       <line x1={padding.left} y1={height - padding.bottom} x2={width - padding.right} y2={height - padding.bottom} stroke="rgba(0,0,0,0.15)" strokeWidth={1} />
       {/* Y轴刻度 */}
-      <text x={padding.left - 6} y={padding.top + 4} textAnchor="end" fontSize={9} fill="var(--color-text-tertiary)">
+      <text x={padding.left - 8} y={padding.top + 4} textAnchor="end" fontSize={10} fill="var(--color-text-tertiary)">
         {formatMetricValue(maxValue, metricKey)}
       </text>
-      <text x={padding.left - 6} y={height - padding.bottom} textAnchor="end" fontSize={9} fill="var(--color-text-tertiary)">
+      <text x={padding.left - 8} y={height - padding.bottom} textAnchor="end" fontSize={10} fill="var(--color-text-tertiary)">
         0
       </text>
       {/* 柱状图 */}
@@ -176,11 +176,11 @@ function ComparisonChart({ data, metricKey }) {
         const y = height - padding.bottom - barHeight
         return (
           <g key={i}>
-            <rect x={x} y={y} width={barWidth} height={barHeight} fill="#8b5cf6" rx={3} />
-            <text x={x + barWidth / 2} y={y - 5} textAnchor="middle" fontSize={8} fill="var(--color-text-secondary)">
+            <rect x={x} y={y} width={barWidth} height={barHeight} fill="#8b5cf6" rx={4} />
+            <text x={x + barWidth / 2} y={y - 6} textAnchor="middle" fontSize={10} fill="var(--color-text-secondary)">
               {formatMetricValue(group.avgValue, metricKey)}
             </text>
-            <text x={x + barWidth / 2} y={height - padding.bottom + 12} textAnchor="middle" fontSize={8} fill="var(--color-text-tertiary)">
+            <text x={x + barWidth / 2} y={height - padding.bottom + 14} textAnchor="middle" fontSize={10} fill="var(--color-text-tertiary)">
               {group.label}
             </text>
           </g>
@@ -255,7 +255,7 @@ function RadarChart({ values, labels }) {
             key={i}
             x={pos.x}
             y={pos.y + dy}
-            fontSize={8}
+            fontSize={9}
             fill="rgba(44,44,44,0.5)"
             textAnchor="middle"
             fontWeight={500}
@@ -478,56 +478,56 @@ export default function DataDashboardPage() {
             )}
 
             {activeCharts && !chartError && !allZero && (
-              <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+              <div style={{ display: 'flex', gap: 24, marginBottom: 24 }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <h3 style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 600 }}>{activeCharts.trendChart.label}趋势</h3>
+                  <h3 style={{ margin: '0 0 12px', fontSize: 15, fontWeight: 600 }}>{activeCharts.trendChart.label}趋势</h3>
                   <div onError={() => setChartError(true)}>
                     <TrendChart data={activeCharts.trendChart} metricKey={activeMetric} />
                   </div>
                 </div>
 
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <h3 style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 600 }}>{activeCharts.comparisonChart.label}栏目对比</h3>
+                  <h3 style={{ margin: '0 0 12px', fontSize: 15, fontWeight: 600 }}>{activeCharts.comparisonChart.label}栏目对比</h3>
                   <div onError={() => setChartError(true)}>
                     <ComparisonChart data={activeCharts.comparisonChart} metricKey={activeMetric} />
                   </div>
                 </div>
 
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <h3 style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 600 }}>用户画像诊断</h3>
-                  <div>
-                    <div style={{ marginBottom: 8 }}>
-                      <h4 style={{ margin: '0 0 6px', fontSize: 11, fontWeight: 600 }}>你的内容正在吸引谁</h4>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+                  <h3 style={{ margin: '0 0 16px', fontSize: 15, fontWeight: 600 }}>用户画像诊断</h3>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                    <div>
+                      <h4 style={{ margin: '0 0 10px', fontSize: 13, fontWeight: 600 }}>你的内容正在吸引谁</h4>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
                         {positioningCard?.tags?.length > 0 ? (
                           positioningCard.tags.map((tag) => (
-                            <span key={tag} className="tag-purple" style={{ fontSize: 10 }}>{tag}</span>
+                            <span key={tag} className="tag-purple" style={{ fontSize: 12 }}>{tag}</span>
                           ))
                         ) : (
-                          <span style={{ fontSize: 11, color: 'var(--color-text-secondary)' }}>暂无定位标签</span>
+                          <span style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>暂无定位标签</span>
                         )}
                       </div>
                       <RadarChart values={[75, 45, 82, 60, 35]} labels={['年龄', '地域', '兴趣', '互动', '转粉']} />
                     </div>
                     <div>
-                      <h4 style={{ margin: '0 0 6px', fontSize: 11, fontWeight: 600 }}>有没有偏离你的定位？</h4>
+                      <h4 style={{ margin: '0 0 10px', fontSize: 13, fontWeight: 600 }}>有没有偏离你的定位？</h4>
                       <span
                         style={{
                           display: 'inline-block',
-                          fontSize: 10,
+                          fontSize: 12,
                           fontWeight: 600,
                           color: '#d4920a',
                           background: 'rgba(234,179,8,0.12)',
-                          padding: '2px 8px',
+                          padding: '4px 12px',
                           borderRadius: 999
                         }}
                       >
                         轻微偏移
                       </span>
-                      <ul style={{ listStyle: 'none', padding: 0, margin: '8px 0 0' }}>
-                        <li style={{ fontSize: 11, color: 'var(--color-text-secondary)', marginBottom: 4, lineHeight: 1.4 }}>年龄段与目标人群基本吻合</li>
-                        <li style={{ fontSize: 11, color: 'var(--color-text-secondary)', marginBottom: 4, lineHeight: 1.4 }}>一线城市占比偏高，地域略有偏移</li>
-                        <li style={{ fontSize: 11, color: 'var(--color-text-secondary)', lineHeight: 1.4 }}>转粉率偏低，需强化关注动机</li>
+                      <ul style={{ listStyle: 'none', padding: 0, margin: '12px 0 0' }}>
+                        <li style={{ fontSize: 13, color: 'var(--color-text-secondary)', marginBottom: 8, lineHeight: 1.5 }}>年龄段与目标人群基本吻合</li>
+                        <li style={{ fontSize: 13, color: 'var(--color-text-secondary)', marginBottom: 8, lineHeight: 1.5 }}>一线城市占比偏高，地域略有偏移</li>
+                        <li style={{ fontSize: 13, color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>转粉率偏低，需强化关注动机</li>
                       </ul>
                     </div>
                   </div>
