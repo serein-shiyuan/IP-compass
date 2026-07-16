@@ -478,23 +478,65 @@ export default function DataDashboardPage() {
             )}
 
             {activeCharts && !chartError && !allZero && (
-              <div style={{ display: 'flex', gap: 24, marginBottom: 24 }}>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <h3 style={{ margin: '0 0 12px', fontSize: 15, fontWeight: 600 }}>{activeCharts.trendChart.label}趋势</h3>
+              <div style={{ display: 'flex', gap: 24, maxWidth: 920, margin: '0 auto 32px' }}>
+                <div
+                  style={{
+                    flex: 1,
+                    minWidth: 0,
+                    background: 'rgba(255,255,255,0.60)',
+                    backdropFilter: 'blur(12px)',
+                    WebkitBackdropFilter: 'blur(12px)',
+                    border: '1px solid rgba(44,44,44,0.06)',
+                    borderRadius: 16,
+                    padding: 24
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                    <div style={{ width: 4, height: 22, background: '#8b5cf6', borderRadius: 2, flexShrink: 0 }} />
+                    <span style={{ fontSize: 15, fontWeight: 700, color: '#2c2c2c' }}>{activeCharts.trendChart.label}趋势</span>
+                  </div>
                   <div onError={() => setChartError(true)}>
                     <TrendChart data={activeCharts.trendChart} metricKey={activeMetric} />
                   </div>
                 </div>
 
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <h3 style={{ margin: '0 0 12px', fontSize: 15, fontWeight: 600 }}>{activeCharts.comparisonChart.label}栏目对比</h3>
+                <div
+                  style={{
+                    flex: 1,
+                    minWidth: 0,
+                    background: 'rgba(255,255,255,0.60)',
+                    backdropFilter: 'blur(12px)',
+                    WebkitBackdropFilter: 'blur(12px)',
+                    border: '1px solid rgba(44,44,44,0.06)',
+                    borderRadius: 16,
+                    padding: 24
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                    <div style={{ width: 4, height: 22, background: '#8b5cf6', borderRadius: 2, flexShrink: 0 }} />
+                    <span style={{ fontSize: 15, fontWeight: 700, color: '#2c2c2c' }}>{activeCharts.comparisonChart.label}栏目对比</span>
+                  </div>
                   <div onError={() => setChartError(true)}>
                     <ComparisonChart data={activeCharts.comparisonChart} metricKey={activeMetric} />
                   </div>
                 </div>
 
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <h3 style={{ margin: '0 0 16px', fontSize: 15, fontWeight: 600 }}>用户画像诊断</h3>
+                <div
+                  style={{
+                    flex: 1,
+                    minWidth: 0,
+                    background: 'rgba(255,255,255,0.60)',
+                    backdropFilter: 'blur(12px)',
+                    WebkitBackdropFilter: 'blur(12px)',
+                    border: '1px solid rgba(44,44,44,0.06)',
+                    borderRadius: 16,
+                    padding: 24
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                    <div style={{ width: 4, height: 22, background: '#8b5cf6', borderRadius: 2, flexShrink: 0 }} />
+                    <span style={{ fontSize: 15, fontWeight: 700, color: '#2c2c2c' }}>用户画像诊断</span>
+                  </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                     <div>
                       <h4 style={{ margin: '0 0 10px', fontSize: 13, fontWeight: 600 }}>你的内容正在吸引谁</h4>
