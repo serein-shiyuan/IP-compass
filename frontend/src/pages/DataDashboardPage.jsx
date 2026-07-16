@@ -478,22 +478,22 @@ export default function DataDashboardPage() {
             )}
 
             {activeCharts && !chartError && !allZero && (
-              <>
-                <div className="glass-card" style={{ padding: 16, marginBottom: 16 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16, marginBottom: 16 }}>
+                <div>
                   <h3 style={{ margin: '0 0 12px', fontSize: 15, fontWeight: 600 }}>{activeCharts.trendChart.label}趋势</h3>
                   <div onError={() => setChartError(true)}>
                     <TrendChart data={activeCharts.trendChart} metricKey={activeMetric} />
                   </div>
                 </div>
 
-                <div className="glass-card" style={{ padding: 16, marginBottom: 16 }}>
+                <div>
                   <h3 style={{ margin: '0 0 12px', fontSize: 15, fontWeight: 600 }}>{activeCharts.comparisonChart.label}栏目对比</h3>
                   <div onError={() => setChartError(true)}>
                     <ComparisonChart data={activeCharts.comparisonChart} metricKey={activeMetric} />
                   </div>
                 </div>
 
-                <div className="glass-card" style={{ padding: 16, marginBottom: 16 }}>
+                <div>
                   <h3 style={{ margin: '0 0 16px', fontSize: 15, fontWeight: 600 }}>用户画像诊断</h3>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
                     <div>
@@ -532,7 +532,7 @@ export default function DataDashboardPage() {
                     </div>
                   </div>
                 </div>
-              </>
+              </div>
             )}
 
             {(chartError || allZero) && activeCharts && (
@@ -541,81 +541,76 @@ export default function DataDashboardPage() {
               </div>
             )}
 
-            <div className="glass-card" style={{ padding: 20, marginBottom: 16 }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-                <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>归因诊断</h3>
-                {dashboard.isInsufficient && (
-                  <span className="tag-purple" style={{ fontSize: 12 }}>数据不足</span>
-                )}
-              </div>
-
-              {dashboard.isInsufficient ? (
-                <p style={{ margin: 0, fontSize: 13, color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
-                  视频数据不足 3 条，暂无法进行归因诊断。建议至少录入 3 条后再试。
-                </p>
-              ) : (
-                <>
-                  {!attribution && !attributionLoading && (
-                    <button className="btn btn-purple btn-full" onClick={handleAnalyzeAttribution}>
+            {dashboard.isInsufficient ? (
+              <p style={{ margin: '0 0 16px', fontSize: 13, color: 'var(--color-text-secondary)', lineHeight: 1.5, textAlign: 'center' }}>
+                视频数据不足 3 条，暂无法进行归因诊断。建议至少录入 3 条后再试。
+              </p>
+            ) : (
+              <>
+                {!attribution && !attributionLoading && (
+                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
+                    <button className="btn btn-purple" onClick={handleAnalyzeAttribution}>
                       开始归因分析
                     </button>
-                  )}
+                  </div>
+                )}
 
-                  {attributionLoading && (
-                    <div style={{ textAlign: 'center', padding: 20 }}>
-                      <div className="spinner" style={{ margin: '0 auto 12px' }} />
-                      <p style={{ margin: 0, fontSize: 13, color: 'var(--color-text-secondary)' }}>正在分析数据...</p>
-                    </div>
-                  )}
+                {attributionLoading && (
+                  <div style={{ textAlign: 'center', padding: 20 }}>
+                    <div className="spinner" style={{ margin: '0 auto 12px' }} />
+                    <p style={{ margin: 0, fontSize: 13, color: 'var(--color-text-secondary)' }}>正在分析数据...</p>
+                  </div>
+                )}
 
-                  {attributionError && (
-                    <div style={{ padding: 12, borderRadius: 'var(--radius-md)', background: 'rgba(239,68,68,0.08)', marginBottom: 12 }}>
-                      <p style={{ margin: 0, fontSize: 13, color: '#b91c1c' }}>{attributionError}</p>
-                    </div>
-                  )}
+                {attributionError && (
+                  <div style={{ padding: 12, borderRadius: 'var(--radius-md)', background: 'rgba(239,68,68,0.08)', marginBottom: 12 }}>
+                    <p style={{ margin: 0, fontSize: 13, color: '#b91c1c' }}>{attributionError}</p>
+                  </div>
+                )}
 
-                  {attribution && (
-                    <>
-                      {attribution.attributions?.length === 0 ? (
-                        <div style={{ textAlign: 'center', padding: '16px 0' }}>
-                          <p style={{ margin: '0 0 12px', fontSize: 14, color: 'var(--color-text-secondary)' }}>
-                            未发现明显低于行业均值的问题
-                          </p>
-                        </div>
-                      ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16 }}>
-                          {attribution.attributions.map((item, index) => (
-                            <div
-                              key={index}
-                              style={{
-                                padding: 14,
-                                borderRadius: 'var(--radius-md)',
-                                background: 'rgba(139,92,246,0.06)',
-                                border: '1px solid rgba(139,92,246,0.12)'
-                              }}
-                            >
-                              <h4 style={{ margin: '0 0 8px', fontSize: 14, fontWeight: 600, color: '#7c3aed' }}>
-                                {item.name}
-                              </h4>
-                              <p style={{ margin: '0 0 6px', fontSize: 13, color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
-                                <strong>数据依据：</strong>{item.dataEvidence}
-                              </p>
-                              <p style={{ margin: 0, fontSize: 13, color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
-                                <strong>内容分析：</strong>{item.contentAnalysis}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                {attribution && (
+                  <>
+                    {attribution.attributions?.length === 0 ? (
+                      <div style={{ textAlign: 'center', padding: '16px 0' }}>
+                        <p style={{ margin: '0 0 12px', fontSize: 14, color: 'var(--color-text-secondary)' }}>
+                          未发现明显低于行业均值的问题
+                        </p>
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16 }}>
+                        {attribution.attributions.map((item, index) => (
+                          <div
+                            key={index}
+                            style={{
+                              padding: 14,
+                              borderRadius: 'var(--radius-md)',
+                              background: 'rgba(139,92,246,0.06)',
+                              border: '1px solid rgba(139,92,246,0.12)'
+                            }}
+                          >
+                            <h4 style={{ margin: '0 0 8px', fontSize: 14, fontWeight: 600, color: '#7c3aed' }}>
+                              {item.name}
+                            </h4>
+                            <p style={{ margin: '0 0 6px', fontSize: 13, color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
+                              <strong>数据依据：</strong>{item.dataEvidence}
+                            </p>
+                            <p style={{ margin: 0, fontSize: 13, color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
+                              <strong>内容分析：</strong>{item.contentAnalysis}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
 
-                      <button className="btn btn-purple btn-full" onClick={() => navigate('/optimization')}>
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
+                      <button className="btn btn-purple" onClick={() => navigate('/optimization')}>
                         生成优化建议
                       </button>
-                    </>
-                  )}
-                </>
-              )}
-            </div>
+                    </div>
+                  </>
+                )}
+              </>
+            )}
 
             <button className="btn btn-outline btn-full" onClick={handleRegenerate} disabled={loading}>
               重新生成看板
