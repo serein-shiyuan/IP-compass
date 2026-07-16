@@ -3,6 +3,38 @@
 const DEFAULT_STATUS = 'pending'
 const MAX_TOPICS = 50
 
+export function topicsFromPreset(topTopics, columns) {
+  if (!Array.isArray(topTopics) || topTopics.length === 0) return null
+  const validColumns = Array.isArray(columns) && columns.length > 0 ? columns : [{ name: '成长栏目' }]
+
+  const topics = topTopics
+    .filter((t) => t && typeof t === 'object' && (t.title || t.topic))
+    .map((t, idx) => {
+      const columnIndex = validColumns.length > 0 ? idx % validColumns.length : 0
+      const columnId = `col_${columnIndex}`
+      const title = String(t.title || t.topic || '').trim()
+      const direction = String(t.direction || '').trim()
+      const points = direction
+        ? [`围绕"${direction}"展开具体场景`, '给出可执行的行动建议或情绪共鸣', '结尾回扣账号定位，引导互动']
+        : ['说明选题背景与用户痛点', '给出具体观点或行动建议', '结合自身经历增强真实感']
+      return {
+        id: `${columnId}_${idx}_${Date.now()}`,
+        columnId,
+        title,
+        points,
+        materialAdvice: direction
+          ? `结合"${direction}"方向准备真实素材或案例`
+          : '结合自身经历或观察准备素材',
+        painPoints: direction ? [`缺少${direction}类内容陪伴`, '找不到可执行的参考'] : ['缺少同类内容陪伴', '找不到可执行的参考'],
+        status: DEFAULT_STATUS,
+        createdAt: new Date().toISOString()
+      }
+    })
+
+  if (topics.length === 0) return null
+  return { topics: topics.slice(0, MAX_TOPICS) }
+}
+
 function buildColumnPrompt(column, columnIndex, quota, positioningCard, ipPlanSummary = '') {
   return `你是一位资深内容选题策划。请为以下栏目生成 ${quota} 个具体可执行的选题。
 
@@ -129,7 +161,13 @@ function distributeQuota(columnCount) {
 }
 
 export async function generateTopics(columns, positioningCard, options = {}) {
-  const { deepseekApiKey, deepseekApiUrl = 'https://api.deepseek.com/chat/completions', ipPlanSummary = '' } = options
+  const { deepseekApiKey, deepseekApiUrl = 'https://api.deepseek.com/chat/completions', ipPlanSummary = '', ipPlan = null } = options
+
+  // 优先使用 IP 方案预设中的前 10 条选题
+  if (ipPlan?.topTopics) {
+    const preset = topicsFromPreset(ipPlan.topTopics, columns)
+    if (preset) return { topics: preset.topics, source: 'preset' }
+  }
 
   if (!deepseekApiKey) {
     return { topics: fallbackTopics(columns, positioningCard), source: 'fallback' }

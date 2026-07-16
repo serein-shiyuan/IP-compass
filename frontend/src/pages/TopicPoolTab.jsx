@@ -88,7 +88,7 @@ export default function TopicPoolTab({ userId, positioningCard, ipPlan }) {
         topic_count: data.length,
         generation_duration: Date.now() - startTime
       })
-      if (source !== 'ai') {
+      if (source === 'fallback') {
         setError('AI 生成未就绪，当前为智能兜底结果。')
       }
     } catch (err) {

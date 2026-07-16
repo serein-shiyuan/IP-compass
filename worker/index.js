@@ -283,7 +283,7 @@ router.post('/api/content/columns/generate', async (req, env) => {
   if (regenerate) await deleteKey(env, 'columns', userId)
 
   try {
-    const { data, source } = await generateColumns(effectiveCard, { deepseekApiKey: env.DEEPSEEK_API_KEY, ipPlanSummary: ipPlan?.summary || '' })
+    const { data, source } = await generateColumns(effectiveCard, { deepseekApiKey: env.DEEPSEEK_API_KEY, ipPlanSummary: ipPlan?.summary || '', ipPlan })
     const generatedAt = new Date().toISOString()
     await setKey(env, 'columns', userId, { columns: data.columns, generatedAt, source })
     return jsonResponse(ok({ columns: data.columns, generatedAt, source }))
@@ -324,7 +324,7 @@ router.post('/api/content/topics/generate', async (req, env) => {
   if (shapeErrors.length > 0) return jsonResponse(fail('INVALID_CARD', shapeErrors.join('；')), 400)
 
   try {
-    const { topics, source } = await generateTopics(columns, effectiveCard, { deepseekApiKey: env.DEEPSEEK_API_KEY, ipPlanSummary: ipPlan?.summary || '' })
+    const { topics, source } = await generateTopics(columns, effectiveCard, { deepseekApiKey: env.DEEPSEEK_API_KEY, ipPlanSummary: ipPlan?.summary || '', ipPlan })
     const generatedAt = new Date().toISOString()
     await setKey(env, 'topics', userId, { topics, generatedAt, source })
     return jsonResponse(ok({ topics, generatedAt, source }))

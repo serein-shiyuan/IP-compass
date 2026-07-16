@@ -2,6 +2,60 @@
 
 const FORMAT_OPTIONS = ['短视频', '图文笔记', '口播', '合集', '直播切片', '轻量图文']
 
+const FORMAT_KEYWORDS = {
+  '短视频': ['短视频'],
+  '图文笔记': ['图文', '图片'],
+  '口播': ['口播'],
+  '合集': ['合集', '系列'],
+  '直播切片': ['直播', '切片'],
+  '轻量图文': ['轻量', '短图文']
+}
+
+function inferFormat(videoFormat = '') {
+  const text = String(videoFormat)
+  for (const [format, keywords] of Object.entries(FORMAT_KEYWORDS)) {
+    if (keywords.some((kw) => text.includes(kw))) return format
+  }
+  if (text.includes('Vlog')) return '短视频'
+  if (text.includes('教程')) return '图文笔记'
+  return '图文笔记'
+}
+
+function inferFrequency(ratio = '') {
+  const num = parseInt(String(ratio).replace(/[^0-9]/g, ''), 10)
+  if (num >= 30) return '每周 2-3 期'
+  if (num >= 20) return '每周 1-2 期'
+  if (num >= 15) return '每周 1 期'
+  if (num >= 10) return '每月 2 期'
+  return '每月 1 期'
+}
+
+export function columnsFromPreset(mainLines) {
+  if (!Array.isArray(mainLines) || mainLines.length === 0) return null
+  const columns = mainLines
+    .filter((line) => line && typeof line === 'object')
+    .map((line) => {
+      const name = String(line.direction || '').trim() || '成长栏目'
+      const goal = String(line.userGain || line.purpose || '').trim() || '为用户提供有价值的内容'
+      const format = FORMAT_OPTIONS.includes(line.format) ? line.format : inferFormat(line.videoFormat)
+      const frequency = line.frequency || inferFrequency(line.ratio)
+      const painPoints = Array.isArray(line.toneKeywords)
+        ? line.toneKeywords.filter((p) => typeof p === 'string' && p.trim() !== '').slice(0, 5)
+        : []
+      if (painPoints.length === 0 && line.avoidBecoming) {
+        painPoints.push(String(line.avoidBecoming).slice(0, 20))
+      }
+      if (painPoints.length === 0) {
+        painPoints.push('缺少同类内容陪伴', '找不到可执行的参考')
+      }
+      return { name, goal, format, frequency, painPoints }
+    })
+    .filter((col) => col.name && col.goal)
+
+  if (columns.length < 2) return null
+  return { columns }
+}
+
 function buildPrompt(positioningCard, ipPlanSummary = '') {
   return `你是一位资深内容策略顾问。请根据以下账号定位卡，设计 3-6 个内容栏目方向。
 
@@ -102,7 +156,13 @@ export function fallbackColumns(positioningCard) {
 }
 
 export async function generateColumns(positioningCard, options = {}) {
-  const { deepseekApiKey, deepseekApiUrl = 'https://api.deepseek.com/chat/completions', ipPlanSummary = '' } = options
+  const { deepseekApiKey, deepseekApiUrl = 'https://api.deepseek.com/chat/completions', ipPlanSummary = '', ipPlan = null } = options
+
+  // 优先使用 IP 方案预设中的内容矩阵
+  if (ipPlan?.contentMatrix?.mainLines) {
+    const preset = columnsFromPreset(ipPlan.contentMatrix.mainLines)
+    if (preset) return { data: preset, source: 'preset' }
+  }
 
   if (!deepseekApiKey) {
     return { data: fallbackColumns(positioningCard), source: 'fallback' }
