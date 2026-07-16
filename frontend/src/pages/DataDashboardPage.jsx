@@ -478,17 +478,16 @@ export default function DataDashboardPage() {
             )}
 
             {activeCharts && !chartError && !allZero && (
-              <div style={{ display: 'flex', gap: 24, maxWidth: 920, margin: '0 auto 32px' }}>
+              <>
                 <div
                   style={{
-                    flex: 1,
-                    minWidth: 0,
                     background: 'rgba(255,255,255,0.60)',
                     backdropFilter: 'blur(12px)',
                     WebkitBackdropFilter: 'blur(12px)',
                     border: '1px solid rgba(44,44,44,0.06)',
                     borderRadius: 16,
-                    padding: 24
+                    padding: 24,
+                    marginBottom: 24
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
@@ -502,14 +501,13 @@ export default function DataDashboardPage() {
 
                 <div
                   style={{
-                    flex: 1,
-                    minWidth: 0,
                     background: 'rgba(255,255,255,0.60)',
                     backdropFilter: 'blur(12px)',
                     WebkitBackdropFilter: 'blur(12px)',
                     border: '1px solid rgba(44,44,44,0.06)',
                     borderRadius: 16,
-                    padding: 24
+                    padding: 24,
+                    marginBottom: 24
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
@@ -523,14 +521,13 @@ export default function DataDashboardPage() {
 
                 <div
                   style={{
-                    flex: 1,
-                    minWidth: 0,
                     background: 'rgba(255,255,255,0.60)',
                     backdropFilter: 'blur(12px)',
                     WebkitBackdropFilter: 'blur(12px)',
                     border: '1px solid rgba(44,44,44,0.06)',
                     borderRadius: 16,
-                    padding: 24
+                    padding: 24,
+                    marginBottom: 24
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
@@ -574,7 +571,7 @@ export default function DataDashboardPage() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </>
             )}
 
             {(chartError || allZero) && activeCharts && (
