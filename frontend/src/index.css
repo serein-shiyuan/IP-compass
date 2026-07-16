@@ -754,6 +754,7 @@ a {
 
 .chat-skip-bubble {
   display: block;
+  width: fit-content;
   max-width: 680px;
   margin: 0 auto 8px;
   padding: 8px 16px;
