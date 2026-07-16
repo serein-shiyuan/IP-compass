@@ -773,6 +773,11 @@ a {
   border-color: var(--color-purple);
 }
 
+.chat-skip-bubble:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .chat-inputbar {
   max-width: 680px;
   margin: 0 auto;

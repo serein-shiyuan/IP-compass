@@ -843,20 +843,12 @@ function Stage2Step() {
       </div>
 
       <div className="chat-footer">
-        <button
-          type="button"
-          className="btn btn-purple btn-full"
-          onClick={handleUsePreset}
-          disabled={generating || !userId}
-          style={{ height: 48, marginBottom: 12 }}
-        >
-          ✨ 使用预设方案，直接进入工作台
-        </button>
         {!isComplete && (
           <button
             type="button"
             className="chat-skip-bubble"
-            onClick={handleSkip}
+            onClick={handleUsePreset}
+            disabled={generating || !userId}
           >
             点击可跳过定制化，仅展示预设模板
           </button>
